@@ -89,6 +89,9 @@ wrp.nacl = (function(){
       this.change_status(2);
       wrp.log_pop();
     },
+    post_message: function(a){
+      this.tmp.dom.nacl_target.postMessage(a);
+    },
   };
   
   wrp_nacl.proc = [];
