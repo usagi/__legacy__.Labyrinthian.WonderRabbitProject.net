@@ -5,7 +5,7 @@ TC_PATH      :=$(abspath $(NACL_SDK_ROOT)/toolchain/$(OSNAME)_x86_newlib)
 
 CXXPPAPI    := -lppapi -lppapi_cpp -lppapi_gles2
 CXXWARNINGS := -Wall
-CXXSTD      := -std=gnu++98
+CXXSTD      := -std=gnu++0x
 CXXOPTIMIZE := -O2
 CXXTHREAD   := -pthread
 
@@ -35,8 +35,17 @@ _site:
 	@-ln -v *.nmf  _site
 	@-ln -v *.js   _site
 	@-ln -v *.css  _site
+	@-ln -v favicon.ico _site
 
 .PHONY: test
 test: all _site
 	darkhttpd _site --index main.html
+
+.PHONY: deploy-test
+deploy-test: all _site
+	rsync -av --delete _site/ Labyrinthian.WonderRabbitProject.net:/srv/http/WonderRabbitProject.net/Labyrinthian/test
+
+.PHONY: deploy-current
+deploy-current: all _site
+	rsync -av --delete _site/ Labyrinthian.WonderRabbitProject.net:/srv/http/WonderRabbitProject.net/Labyrinthian/current
 

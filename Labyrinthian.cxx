@@ -1,3 +1,6 @@
+#include <string>
+#include <algorithm>
+
 #include "ppapi/cpp/instance.h"
 #include "ppapi/cpp/module.h"
 //#include "ppapi/gles2/gl2ext_ppapi.h"
@@ -12,7 +15,13 @@ namespace wrp {
   {
     explicit Labyrinthian_instance(PP_Instance a): pp::Instance(a){}
     virtual ~Labyrinthian_instance(){}
-    virtual void HandleMessage(const pp::Var& a){}
+    virtual void HandleMessage(const pp::Var& a){
+      if(!a.is_string())
+        return;
+      auto v = a.AsString();
+      std::reverse(v.begin(),v.end());
+      PostMessage(pp::Var(v));
+    }
   };
   
   struct Labyrinthian_module

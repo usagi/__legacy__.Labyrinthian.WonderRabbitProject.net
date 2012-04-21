@@ -10,7 +10,7 @@ if (!wrp.log){
       var i = '';
       for(var n = wrp.log_stack.length - 2; n; --n)
         i += '  ';
-      console.log(i + '[' + new Date().getTime() + ':' + t.name + '] ' + a, t.object);
+      console.log(i + '[' + new Date().getTime() + ':' + t.name + '] ', a, t.object);
     };
     wrp.log_push = function(n, o){
       wrp.log_stack.push( {name:n, object:o} );
@@ -40,7 +40,9 @@ wrp.nacl = (function(){
       dom   : {},
     };
     this.on_message = function(a){
+      wrp.log_push('on_message',this);
       wrp.log(a.data);
+      wrp.log_pop();
     };
     wrp.nacl.proc.push(this);
   };
@@ -65,8 +67,8 @@ wrp.nacl = (function(){
       wrp.log_push('initialize_event', this);
       var c = this.tmp.dom.nacl_container;
       var t = this;
-      c.addEventListener('load'   , function(){ t.on_load();    } , true);
-      c.addEventListener('message', function(){ t.on_message(); } , true);
+      c.addEventListener('load'   , function() { t.on_load();     } , true);
+      c.addEventListener('message', function(a){ t.on_message(a); } , true);
       wrp.log_pop();
     },
     initialize_status: function(){
