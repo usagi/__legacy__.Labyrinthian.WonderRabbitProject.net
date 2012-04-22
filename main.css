@@ -36,6 +36,43 @@ body
   height: 1080px;
 }
 
+#indicator
+{
+  border-radius: 6px;
+  background: hsla(0,50%,50%,1);
+  width: 10%;
+  height: 10%;
+  position: fixed;
+  margin-left: -5%;
+  margin-top: -5%;
+  left:50%;
+  top:50%;
+  opacity:0.5;
+}
+
+#indicator *
+{
+  width: 100%;
+  height: auto;
+  display : inline-block;
+  overflow: visible;
+  position: relative;
+  font-size: 18px;
+  text-shadow: 2px 2px 4px black;
+}
+
+#indicator_key
+{
+  top:4px;
+  text-align:center;
+}
+
+#indicator_value
+{
+  font-size:35px;
+  text-align:right;
+}
+
 body > header
 {
   border-radius: 0 0 20px 20px;

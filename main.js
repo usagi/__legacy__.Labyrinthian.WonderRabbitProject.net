@@ -39,11 +39,6 @@ wrp.nacl = (function(){
       status: 0,
       dom   : {},
     };
-    this.on_message = function(a){
-      wrp.log_push('on_message',this);
-      wrp.log(a.data);
-      wrp.log_pop();
-    };
     wrp.nacl.proc.push(this);
   };
   
@@ -67,8 +62,14 @@ wrp.nacl = (function(){
       wrp.log_push('initialize_event', this);
       var c = this.tmp.dom.nacl_container;
       var t = this;
-      c.addEventListener('load'   , function() { t.on_load();     } , true);
-      c.addEventListener('message', function(a){ t.on_message(a); } , true);
+      c.addEventListener('load'     , function() { t.on_load();      } , true);
+      c.addEventListener('message'  , function(a){ t.on_message(a);  } , true);
+      c.addEventListener('loadstart', function() { t.on_loadstart(); } , true);
+      c.addEventListener('loadend'  , function() { t.on_loadend();   } , true);
+      c.addEventListener('progress' , function(a){ t.on_progress(a); } , true);
+      c.addEventListener('error'    , function() { t.on_error();     } , true);
+      c.addEventListener('abort'    , function() { t.on_abort();     } , true);
+      c.addEventListener('crash'    , function() { t.on_crash();     } , true);
       wrp.log_pop();
     },
     initialize_status: function(){
@@ -89,8 +90,62 @@ wrp.nacl = (function(){
       this.change_status(2);
       wrp.log_pop();
     },
+    on_message: function(a){
+      wrp.log_push('on_message',this);
+      wrp.log(a.data);
+      if(this.message)
+        this.message(a);
+      wrp.log_pop();
+    },
     post_message: function(a){
+      wrp.log_push('post_message', this);
+      wrp.log(a);
       this.tmp.dom.nacl_target.postMessage(a);
+      wrp.log_pop();
+    },
+    on_loadstart: function(){
+      wrp.log_push('on_loadstart', this);
+      wrp.log_pop();
+    },
+    on_loadend: function(){
+      wrp.log_push('on_loadend', this);
+      wrp.log_pop();
+    },
+    on_progress: function(a){
+      wrp.log_push('on_progress', this);
+      var r = a.loaded / a.total;
+      this.change_status(1.0 + r);
+      if(this.loading)
+        this.loading(r);
+      wrp.log_pop();
+    },
+    on_error: function(){
+      wrp.log_push('on_error', this);
+      if(this.error)
+        this.error();
+      this.nacl_target_dump();
+      wrp.log_pop();
+    },
+    on_abort: function(){
+      wrp.log_push('on_abort', this);
+      if(this.abort)
+        this.abort();
+      this.nacl_target_dump();
+      wrp.log_pop();
+    },
+    on_crash: function(){
+      wrp.log_push('on_crash', this);
+      if(this.crash)
+        this.crash();
+      this.nacl_target_dump();
+      wrp.log_pop();
+    },
+    nacl_target_dump: function(){
+      wrp.log_push('nacl_target_dump', this);
+      var t = this.tmp.dom.nacl_target;
+      wrp.log('lastError : ' + t.lastError );
+      wrp.log('readyState: ' + t.readyState);
+      wrp.log_pop();
     },
   };
   
@@ -99,7 +154,35 @@ wrp.nacl = (function(){
 })();
 
 var main = function(){
+  var indicate = function(k, v, va, o){
+    wrp.log_push('indicate',this);
+    wrp.log('k : ' + k );
+    wrp.log('v : ' + v );
+    wrp.log('va: ' + va);
+    wrp.log('o : ' + o );
+    var ei = document.getElementById('indicator');
+    var ek = document.getElementById('indicator_key');
+    var ev = document.getElementById('indicator_value');
+    if(typeof o === typeof 0)
+      ei.style.opacity = o;
+    if(k)
+      ek.innerHTML = k;
+    if(v)
+      ev.innerHTML = v;
+    if(va)
+      ev.style.textAlign = va;
+    wrp.log_pop();
+  };
+  
   var n = new wrp.nacl();
+  //n.message = function(a){};
+  n.loading = function(a){
+    var o = (a >= 1) ? 0 : 1;
+    indicate('LOADING', (a * 100).toFixed(2) + '[%]', 'right', o);
+  };
+  n.error = function(){ indicate('OOPS!','ERROR','center',1); };
+  n.abort = function(){ indicate('OOPS!','ABORT','center',1); };
+  n.crash = function(){ indicate('OOPS!','CRASH','center',1); };
   n.initialize();
 };
 
