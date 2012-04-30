@@ -153,7 +153,24 @@ wrp.nacl = (function(){
   return wrp_nacl;
 })();
 
+var initialize = function(){
+  var css_fix_size = function(){
+    wrp.log_push('css_fix_size', this);
+    var margin = 20;
+    var s = document.styleSheets[document.styleSheets.length - 1];
+    var m0 = Math.min(window.innerWidth, window.innerHeight);
+    var m1 = Math.min(14, m0 * 0.02);
+    var m2 = Math.min(14, m0 * 0.023);
+    document.getElementById('global_header').style.fontSize = m2 + 'px';
+    document.getElementById('global_footer').style.fontSize = m1 + 'px';
+    wrp.log_pop();
+  };
+  window.addEventListener('resize', css_fix_size, true);
+  css_fix_size();
+};
+
 var main = function(){
+  initialize();
   var indicate = function(k, v, va, o){
     wrp.log_push('indicate',this);
     wrp.log('k : ' + k );

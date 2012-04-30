@@ -22,6 +22,16 @@ namespace wrp {
       std::reverse(v.begin(),v.end());
       PostMessage(pp::Var(v));
     }
+    virtual void DidChangeView(const pp::View& view){
+      PostMessage("ToDo: resize view / did change view(v)");
+      pp::Instance::DidChangeView(view);
+    }
+    virtual void DidChangeView(const pp::Rect& position, const pp::Rect& clip){
+      PostMessage("ToDo: resize view / did change view(position, clip)");
+    }
+    virtual void DidChangeFocus(bool focus){
+      PostMessage("ToDo: auto pause / did change focus(focus)");
+    }
   };
   
   struct Labyrinthian_module

@@ -18,6 +18,16 @@
   overflow:hidden;
 }
 
+html,
+body,
+body > article,
+body > article > div,
+body > article > div > embed
+{
+  width: 100%;
+  height: 100%;
+}
+
 body
 {
   background: #000;
@@ -26,22 +36,22 @@ body
 
 #nacl_container
 {
-  width : 1920px;
-  height: 1080px;
+  width : 100%;
+  height: 100%;
 }
 
 #nacl_target
 {
-  width : 1920px;
-  height: 1080px;
+  width : 100%;
+  height: 100%;
 }
 
 #indicator
 {
-  border-radius: 6px;
+  border-radius: 0.78em;
   background: hsla(0,50%,50%,1);
-  width: 10%;
-  height: 10%;
+  width: 10em;
+  height: 5em;
   position: fixed;
   margin-left: -5%;
   margin-top: -5%;
@@ -57,8 +67,8 @@ body
   display : inline-block;
   overflow: visible;
   position: relative;
-  font-size: 18px;
-  text-shadow: 2px 2px 4px black;
+  font-size: 1.3333333em;
+  text-shadow: 0.1em 0.1em 0.2em black;
 }
 
 #indicator_key
@@ -69,27 +79,27 @@ body
 
 #indicator_value
 {
-  font-size:35px;
-  text-align:right;
+  font-size:2em;
+  text-align:center;
 }
 
 body > header
 {
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 0.5em 0.5em;
   position:fixed;
-  width:1912px;
-  height:43px;
-  padding-top:3px;
+  width:98%;
+  height:40px;
+  padding-top:0;
   opacity:0.333;
-  top:-36px;
-  left:4px;
+  top:-30px;
+  left:1%;
   background: hsla(0,50%,50%,0.8);
 }
 
 body > header:hover
 {
   opacity:1;
-  top:-3px;
+  top:0;
 }
 
 body > header > h1
@@ -99,28 +109,28 @@ body > header > h1
   display : inline-block;
   overflow: visible;
   position: relative;
-  font-size: 28px;
-  text-shadow: 2px 2px 4px black;
+  font-size: 2em;
+  text-shadow: 0.1em 0.1em 0.2em black;
   text-align: center;
 }
 
 body > footer
 {
-  border-radius: 20px 20px 0 0;
+  border-radius: 0.5em 0.5em 0 0;
   position:fixed;
-  width:1912px;
-  height:43px;
-  padding-top:3px;
+  width:98%;
+  height:200px;
+  padding-top:0;
   opacity:0.333;
-  bottom:-38px;
-  left:4px;
+  bottom:-190px;
+  left:1%;
   background: hsla(0,50%,50%,0.8);
 }
 
 body > footer:hover
 {
   opacity:1;
-  bottom:-3px;
+  bottom:0;
 }
 
 body > footer *
@@ -130,19 +140,23 @@ body > footer *
   display : inline-block;
   overflow: visible;
   position: relative;
-  font-size: 18px;
-  text-shadow: 2px 2px 4px black;
+  font-size: 1em;
+  text-shadow: 0.1em 0.1em 0.2em black;
 }
 
 body > footer > dl
 {
-  padding-left:8px;
+  padding-left:1em;
 }
 
 body > footer dt,
 body > footer dd
 {
-  margin-left: 4px;
+  display: block;
 }
 
-
+body > footer dd
+{
+  margin-left: 2em;
+  display: inline-block;
+}
