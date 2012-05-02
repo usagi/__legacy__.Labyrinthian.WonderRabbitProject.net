@@ -27,10 +27,48 @@ clean:
 	@-rmdir -v _site
 	@-rm -v *.o
 	@-rm -v *.nexe
+	@-rm -v *.nmf
+
+.PHONY: _site_dir
+_site_dir:
+	@if [ -d _site ]; then rm -rf _site/*; else mkdir _site; fi;
+
+.PHONY: glibc_so_64
+glibc_so_64: _site_dir Labyrinthian_x86_64.nexe
+	@if [ -d _site/lib64 ]; then rm -rf _site/lib64/*; else mkdir _site/lib64; fi;
+	@for a in `$(TC_PATH)/bin/x86_64-nacl-objdump -p Labyrinthian_x86_64.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib/$${a} _site/lib64/$${a}; done;
+	@chmod 644 _site/lib64/*
+
+.PHONY: glibc_so_32
+glibc_so_32: _site_dir Labyrinthian_i686.nexe
+	@if [ -d _site/lib32 ]; then rm -rf _site/lib32/*; else mkdir _site/lib32; fi;
+	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p Labyrinthian_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib32/$${a} _site/lib32/$${a}; done;
+	@chmod 644 _site/lib32/*
+
+.PHONY: Labyrinthian.nmf
+Labyrinthian.nmf: _site_dir Labyrinthian_x86_64.nexe
+	@echo '{' >> Labyrinthian.nmf
+	@echo '  "program": {' >> Labyrinthian.nmf
+	@echo '     "x86-64": { "url": "lib64/runnable-ld.so" },' >> Labyrinthian.nmf
+	@echo '     "x86-32": { "url": "lib32/runnable-ld.so" }' >> Labyrinthian.nmf
+	@echo '  },' >> Labyrinthian.nmf
+	@echo '  "files": {' >> Labyrinthian.nmf
+	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p Labyrinthian_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`;\
+		do\
+		echo "    \"$${a}\": {" >> Labyrinthian.nmf;\
+		echo "      \"x86-64\": { \"url\": \"$${a}\"}," >> Labyrinthian.nmf;\
+		echo "      \"x86-32\": { \"url\": \"$${a}\"}" >> Labyrinthian.nmf;\
+		echo '    }' >> Labyrinthian.nmf;\
+		done;
+	@echo '    "main.nexe": {' >> Labyrinthian.nmf
+	@echo '      "x86-64": { "url": "Labyrinthian_x86_64.nexe" },' >> Labyrinthian.nmf
+	@echo '      "x86-32": { "url": "Labyrinthian_i686.nexe" }' >> Labyrinthian.nmf
+	@echo '    }' >> Labyrinthian.nmf
+	@echo '  }' >> Labyrinthian.nmf
+	@echo "}" >> Labyrinthian.nmf
 
 .PHONY: _site
-_site:
-	@if [ -d _site ]; then rm -rf _site/*; else mkdir _site; fi;
+_site: _site_dir Labyrinthian.nmf glibc_so_64 glibc_so_32 Labyrinthian_x86_64.nexe Labyrinthian_i686.nexe
 	@-ln -v *.nexe _site
 	@-ln -v *.html _site
 	@-ln -v *.nmf  _site
