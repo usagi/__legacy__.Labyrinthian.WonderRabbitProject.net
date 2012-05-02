@@ -5,7 +5,7 @@ TC_PATH      :=$(abspath $(NACL_SDK_ROOT)/toolchain/$(OSNAME)_x86_newlib)
 
 CXXPPAPI    := -lppapi -lppapi_cpp -lppapi_gles2
 CXXWARNINGS := -Wall
-CXXSTD      := -std=gnu++0x
+CXXSTD      := -std=c++0x
 CXXOPTIMIZE := -O2
 CXXTHREAD   := -pthread
 
