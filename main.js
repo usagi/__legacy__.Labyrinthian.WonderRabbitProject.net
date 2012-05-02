@@ -105,10 +105,14 @@ wrp.nacl = (function(){
     },
     on_loadstart: function(){
       wrp.log_push('on_loadstart', this);
+      if(this.load_start)
+        this.load_start();
       wrp.log_pop();
     },
     on_loadend: function(){
       wrp.log_push('on_loadend', this);
+      if(this.load_end)
+        this.load_end();
       wrp.log_pop();
     },
     on_progress: function(a){
@@ -171,12 +175,9 @@ var initialize = function(){
 
 var main = function(){
   initialize();
+  
   var indicate = function(k, v, va, o){
     wrp.log_push('indicate',this);
-    wrp.log('k : ' + k );
-    wrp.log('v : ' + v );
-    wrp.log('va: ' + va);
-    wrp.log('o : ' + o );
     var ei = document.getElementById('indicator');
     var ek = document.getElementById('indicator_key');
     var ev = document.getElementById('indicator_value');
@@ -193,14 +194,45 @@ var main = function(){
   
   var n = new wrp.nacl();
   //n.message = function(a){};
+  n.load_start = function(){
+    indicate('LOADING', '', 'center', 1);
+  };
+  n.load_end = function(){
+    indicate('LOADING', 'DONE', 'center', 0);
+  };
   n.loading = function(a){
-    var o = (a >= 1) ? 0 : 1;
-    indicate('LOADING', (a * 100).toFixed(2) + '[%]', 'right', o);
+    if(!this.loading_chars){
+      this.loading_chars = ['-','\\','|','/'];
+      this.loading_char_index = 0;
+    }
+    this.loading_char_index = ++this.loading_char_index % this.loading_chars.length;
+    indicate('LOADING', this.loading_chars[this.loading_char_index], 'center', 1);
   };
   n.error = function(){ indicate('OOPS!','ERROR','center',1); };
   n.abort = function(){ indicate('OOPS!','ABORT','center',1); };
   n.crash = function(){ indicate('OOPS!','CRASH','center',1); };
   n.initialize();
+  
+  /*
+  var nmf;
+  var nmf_getter = new XMLHttpRequest();
+  nmf_getter.open('GET', 'Labyrinthian.nmf', true);
+  nmf_getter.onreadystatechange = function(){
+    wrp.log_push('onreadystatechange', this);
+    if(this.readyState === 4){
+      wrp.log('status: ' + this.status);
+      if(this.status >= 200 && this.status < 300){
+        nmf = eval('(' + this.responseText + ')');
+        wrp.log(nmf);
+        n.initialize();
+      }else{
+        wrp.log('oops!');
+      }
+    }
+    wrp.log_pop();
+  };
+  nmf_getter.send(null);
+  */
 };
 
 window.addEventListener('load', main, false);
