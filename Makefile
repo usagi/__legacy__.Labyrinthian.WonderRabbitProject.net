@@ -36,12 +36,14 @@ _site_dir:
 .PHONY: glibc_so_64
 glibc_so_64: _site_dir Labyrinthian_x86_64.nexe
 	@if [ -d _site/lib64 ]; then rm -rf _site/lib64/*; else mkdir _site/lib64; fi;
+	@ln -v $(TC_PATH)/x86_64-nacl/lib/runnable-ld.so _site/lib64/
 	@for a in `$(TC_PATH)/bin/x86_64-nacl-objdump -p Labyrinthian_x86_64.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib/$${a} _site/lib64/$${a}; done;
 	@chmod 644 _site/lib64/*
 
 .PHONY: glibc_so_32
 glibc_so_32: _site_dir Labyrinthian_i686.nexe
 	@if [ -d _site/lib32 ]; then rm -rf _site/lib32/*; else mkdir _site/lib32; fi;
+	@ln -v $(TC_PATH)/x86_64-nacl/lib32/runnable-ld.so _site/lib32/
 	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p Labyrinthian_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib32/$${a} _site/lib32/$${a}; done;
 	@chmod 644 _site/lib32/*
 
