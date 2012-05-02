@@ -1,15 +1,16 @@
 THIS_MAKEFILE:=$(abspath $(lastword $(MAKEFILE_LIST)))
 NACL_SDK_ROOT?=$(abspath $(dir $(THIS_MAKEFILE))../..)
 OSNAME       :=$(shell uname --kernel-name | tr "[:upper:]" "[:lower:]")
-TC_PATH      :=$(abspath $(NACL_SDK_ROOT)/toolchain/$(OSNAME)_x86_newlib)
+TC_PATH      :=$(abspath $(NACL_SDK_ROOT)/toolchain/$(OSNAME)_x86_glibc)
 
 CXXPPAPI    := -lppapi -lppapi_cpp -lppapi_gles2
+CXXINCLUDES := -I/usr/include
 CXXWARNINGS := -Wall
 CXXSTD      := -std=c++0x
 CXXOPTIMIZE := -O2
 CXXTHREAD   := -pthread
 
-CXXFLAGS:=$(CXXTHREAD) $(CXXSTD) $(CXXOPTIMIZE) $(CXXWARNINGS) $(CXXPPAPI)
+CXXFLAGS:=$(CXXTHREAD) $(CXXSTD) $(CXXOPTIMIZE) $(CXXWARNINGS) $(CXXPPAPI) $(CXXINCLUDES)
 
 CXX:=$(TC_PATH)/bin/i686-nacl-g++
 
