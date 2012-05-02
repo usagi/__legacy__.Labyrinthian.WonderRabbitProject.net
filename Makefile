@@ -56,8 +56,8 @@ Labyrinthian.nmf: _site_dir Labyrinthian_x86_64.nexe
 	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p Labyrinthian_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`;\
 		do\
 		echo "    \"$${a}\": {" >> Labyrinthian.nmf;\
-		echo "      \"x86-64\": { \"url\": \"$${a}\"}," >> Labyrinthian.nmf;\
-		echo "      \"x86-32\": { \"url\": \"$${a}\"}" >> Labyrinthian.nmf;\
+		echo "      \"x86-64\": { \"url\": \"lib64/$${a}\"}," >> Labyrinthian.nmf;\
+		echo "      \"x86-32\": { \"url\": \"lib32/$${a}\"}" >> Labyrinthian.nmf;\
 		echo '    },' >> Labyrinthian.nmf;\
 		done;
 	@echo '    "main.nexe": {' >> Labyrinthian.nmf
