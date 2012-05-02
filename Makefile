@@ -58,7 +58,7 @@ Labyrinthian.nmf: _site_dir Labyrinthian_x86_64.nexe
 		echo "    \"$${a}\": {" >> Labyrinthian.nmf;\
 		echo "      \"x86-64\": { \"url\": \"$${a}\"}," >> Labyrinthian.nmf;\
 		echo "      \"x86-32\": { \"url\": \"$${a}\"}" >> Labyrinthian.nmf;\
-		echo '    }' >> Labyrinthian.nmf;\
+		echo '    },' >> Labyrinthian.nmf;\
 		done;
 	@echo '    "main.nexe": {' >> Labyrinthian.nmf
 	@echo '      "x86-64": { "url": "Labyrinthian_x86_64.nexe" },' >> Labyrinthian.nmf
