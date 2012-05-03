@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 
@@ -14,9 +15,10 @@
 #include "ppapi/cpp/input_event.h"
 
 namespace wrp { 
-  struct Labyrinthian_instance
+  class Labyrinthian_instance
     : public pp::Instance
   {
+  public:
     explicit Labyrinthian_instance(PP_Instance a): pp::Instance(a){
       RequestInputEvents(
         PP_INPUTEVENT_CLASS_MOUSE |
