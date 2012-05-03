@@ -27,6 +27,20 @@ namespace wrp {
       );
     }
     virtual ~Labyrinthian_instance(){}
+    virtual bool Init(uint32_t argc, const char* argn[], const char* argv[]){
+      auto m = std::string("Labyrinthian::Init\n");
+      for(auto n = 0; n < argc; ++n){
+        m += "attribute#";
+        m += boost::lexical_cast<std::string>(n);
+        m += "\n";
+        m += "name : ";
+        m += argn[n];
+        m += "\n"
+             "value: ";
+        m += argv[n];
+      }
+      PostMessage(m);
+    }
     virtual void HandleMessage(const pp::Var& a){
       if(!a.is_string())
         return;
