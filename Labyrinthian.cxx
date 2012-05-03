@@ -38,6 +38,7 @@ namespace wrp {
         m += "\n"
              "value: ";
         m += argv[n];
+        m += "\n";
       }
       PostMessage(m);
     }
