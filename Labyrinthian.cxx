@@ -3,6 +3,7 @@
 #include <sstream>
 #include <chrono>
 #include <algorithm>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
 
@@ -24,11 +25,13 @@ namespace wrp {
 #endif
 
   class log{
+  private:
     decltype(std::chrono::system_clock::now()) start;
     std::string object_name;
     void* object_address;
     static int nesting_counter;
   public:
+    typedef std::chrono::duration<double> unit;
     std::stringstream buffer;
     explicit log(std::string object_name_ = "", void* object_address_ = 0)
       : start(std::chrono::system_clock::now())
@@ -38,6 +41,7 @@ namespace wrp {
       ++nesting_counter;
     }
     ~log(){
+      using std::chrono::duration_cast;
       auto end = std::chrono::system_clock::now();
       std::string indent;
       for(auto n = nesting_counter; n; --n)
@@ -45,9 +49,12 @@ namespace wrp {
       std::cout
         << indent << "[" WRP_PRODUCT_NAME "] "
                   << object_name << " " << object_address << "\n"
-        //<< indent << "start: " << start.time_since_epoch() << "\n"
-        //<< indent << "end  : " << end.time_since_epoch() << "\n"
-        //<< indent << "dt   : " << (end - start).count() << "\n"
+        << indent << "start: "
+                  << duration_cast<unit>(start.time_since_epoch()).count() << "\n"
+        << indent << "end  : "
+                  << duration_cast<unit>(end.time_since_epoch()).count() << "\n"
+        << indent << "dt   : "
+                  << duration_cast<unit>((end - start)).count() << "\n"
         ;
       std::string b;
       while(std::getline(buffer, b))
