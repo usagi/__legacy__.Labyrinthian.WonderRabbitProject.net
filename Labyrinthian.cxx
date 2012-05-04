@@ -1,6 +1,7 @@
 #include <iostream>
-#include <fstream>
 #include <string>
+#include <sstream>
+#include <chrono>
 #include <algorithm>
 
 #include <boost/lexical_cast.hpp>
@@ -14,12 +15,59 @@
 #include "ppapi/cpp/var.h"
 #include "ppapi/cpp/input_event.h"
 
+#define WRP_PRODUCT_NAME "Labyrinthian"
+
 namespace wrp { 
+
+#if !defined(WRP_PRODUCT_NAME)
+  #define WRP_PRODUCT_NAME "UNKNOWN PRODUCT"
+#endif
+
+  class log{
+    decltype(std::chrono::system_clock::now()) start;
+    std::string object_name;
+    void* object_address;
+    static int nesting_counter;
+  public:
+    std::stringstream buffer;
+    explicit log(std::string object_name_ = "", void* object_address_ = 0)
+      : start(std::chrono::system_clock::now())
+      , object_name(object_name_)
+      , object_address(object_address_)
+    {
+      ++nesting_counter;
+    }
+    ~log(){
+      auto end = std::chrono::system_clock::now();
+      std::string indent;
+      for(auto n = nesting_counter; n; --n)
+        indent += "  ";
+      std::cout
+        << indent << "[" WRP_PRODUCT_NAME "] "
+                  << object_name << " " << object_address << "\n"
+        //<< indent << "start: " << start.time_since_epoch() << "\n"
+        //<< indent << "end  : " << end.time_since_epoch() << "\n"
+        //<< indent << "dt   : " << (end - start).count() << "\n"
+        ;
+      std::string b;
+      while(std::getline(buffer, b))
+        std::cout << indent << b << "\n";
+      std::cout << std::flush;
+      --nesting_counter;
+    }
+    auto operator<<(const bool v) -> decltype(buffer<<v) { return buffer << v; }
+    auto operator<<(const char* v) -> decltype(buffer<<v) { return buffer << v; }
+    auto operator<<(std::string& v) -> decltype(buffer<<v) { return buffer << v; }
+    auto operator<<(int& v) -> decltype(buffer<<v){ return buffer << v; }
+  };
+  int log::nesting_counter = -1;
+  
   class Labyrinthian_instance
     : public pp::Instance
   {
   public:
     explicit Labyrinthian_instance(PP_Instance a): pp::Instance(a){
+      log log_("Labyrinthian_instance", this);
       RequestInputEvents(
         PP_INPUTEVENT_CLASS_MOUSE |
         PP_INPUTEVENT_CLASS_WHEEL
@@ -30,49 +78,42 @@ namespace wrp {
     }
     virtual ~Labyrinthian_instance(){}
     virtual bool Init(uint32_t argc, const char* argn[], const char* argv[]){
-      auto m = std::string("Labyrinthian::Init\n");
-      for(auto n = 0; n < argc; ++n){
-        m += "attribute#";
-        m += boost::lexical_cast<std::string>(n);
-        m += "\n";
-        m += "name : ";
-        m += argn[n];
-        m += "\n"
-             "value: ";
-        m += argv[n];
-        m += "\n";
+      log l("Init", this);
+      for(decltype(argc) n = 0; n < argc; ++n){
+        l << "attribute#" << boost::lexical_cast<std::string>(n) << "\n"
+          << "name: " << argn[n] <<"\n"
+          << "value: " << argv[n] 
+          ;
       }
-      PostMessage(m);
+      return true;
     }
     virtual void HandleMessage(const pp::Var& a){
+      log l("HandleMessage", this);
       if(!a.is_string())
         return;
       auto v = a.AsString();
-      std::reverse(v.begin(),v.end());
-      std::cerr<<v<<"\n";
-      PostMessage(pp::Var(v));
+      l << "v: " << v;
     }
     virtual bool HandleInputEvent(const pp::InputEvent& event){
-      PostMessage(pp::Var("HandleInputEvent"));
-      std::cerr << "HandleInputEvent\n";
-      auto m = std::string(
-          "Test: input / handle input event\n"
-          "  type: "
-          );
-      m += boost::lexical_cast<std::string>(event.GetType()) + "\n"
-        "  time: " + boost::lexical_cast<std::string>(event.GetTimeStamp());
-      PostMessage(m);
-      return pp::Instance::HandleInputEvent(event);
+      log l("HandleInputEvent", this);
+      l << "type: " << boost::lexical_cast<std::string>(event.GetType()) + "\n"
+        << "time: " << boost::lexical_cast<std::string>(event.GetTimeStamp())
+        ;
+      return true;
     }
     virtual void DidChangeView(const pp::View& view){
-      PostMessage("ToDo: resize view / did change view(v)");
+      log l("DidChangeView(const pp::View&)", this);
+      // ToDo: resize view
       pp::Instance::DidChangeView(view);
     }
     virtual void DidChangeView(const pp::Rect& position, const pp::Rect& clip){
-      PostMessage("ToDo: resize view / did change view(position, clip)");
+      log l("DidChangeView(const pp::Rect&, const pp::Rect&)", this);
+      // ToDo: resize view
     }
     virtual void DidChangeFocus(bool focus){
-      PostMessage("ToDo: auto pause / did change focus(focus)");
+      log l("DidChangeFocus", this);
+      l << "focus: " << focus;
+      // ToDo: 
     }
   };
   

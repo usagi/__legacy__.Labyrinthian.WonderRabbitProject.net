@@ -78,9 +78,14 @@ _site: _site_dir Labyrinthian.nmf glibc_so_64 glibc_so_32 Labyrinthian_x86_64.ne
 	@-ln -v *.css  _site
 	@-ln -v favicon.ico _site
 
-.PHONY: test
-test: all _site
-	darkhttpd _site --index main.html
+.PHONY: test-server
+test-server: all _site
+	darkhttpd _site --index main.html --port 12345
+
+.PHONY: test-client
+test-client: 
+	@ if [ -f test-client.log ]; then rm -v test-client.log; fi;
+	chromium-dev "http://localhost:12345" | tee test-client.log
 
 .PHONY: deploy-test
 deploy-test: all _site
