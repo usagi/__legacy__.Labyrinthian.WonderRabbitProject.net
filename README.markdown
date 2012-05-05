@@ -37,4 +37,9 @@ Labyrinthian - Wonder Rabbit Project
 [C:facebook]: https://www.facebook.com/usagi.wrp
 [C:twitter]:  https://twitter.com/#!/USAGI_WRP
 
+## Using Libraries
+
+*   Pepper(NaCl API) : <https://developers.google.com/native-client/>
+*   Boost            : <http://www.boost.org/>
+*   libwrp           : <https://github.com/usagi/libwrp>
 
