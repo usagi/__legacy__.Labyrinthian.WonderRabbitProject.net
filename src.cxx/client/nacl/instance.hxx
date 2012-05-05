@@ -3,26 +3,26 @@
 #include <boost/lexical_cast.hpp>
 
 #include "ppapi/cpp/instance.h"
-#include "ppapi/cpp/module.h"
 //#include "ppapi/gles2/gl2ext_ppapi.h"
-
 //#include "ppapi/cpp/rect.h"
 //#include "ppapi/cpp/size.h"
 #include "ppapi/cpp/var.h"
 #include "ppapi/cpp/input_event.h"
 
 #define WRP_PRODUCT_NAME "Labyrinthian"
-
 #include <wrp/log.hxx>
 
-namespace wrp { 
+namespace wrp {
+namespace Labyrinthian {
+namespace client {
+namespace nacl {
 
-  class Labyrinthian_instance
+  class instance
     : public pp::Instance
   {
   public:
-    explicit Labyrinthian_instance(PP_Instance a): pp::Instance(a){
-      log log_("Labyrinthian_instance", this);
+    explicit instance(PP_Instance a): pp::Instance(a){
+      log log_("instance", this);
       RequestInputEvents(
         PP_INPUTEVENT_CLASS_MOUSE |
         PP_INPUTEVENT_CLASS_WHEEL
@@ -31,7 +31,7 @@ namespace wrp {
         PP_INPUTEVENT_CLASS_KEYBOARD
       );
     }
-    virtual ~Labyrinthian_instance(){}
+    virtual ~instance(){}
     virtual bool Init(uint32_t argc, const char* argn[], const char* argv[]){
       log l("Init", this);
       for(decltype(argc) n = 0; n < argc; ++n){
@@ -71,19 +71,6 @@ namespace wrp {
       // ToDo: 
     }
   };
-  
-  struct Labyrinthian_module
-    : public pp::Module
-  {
-    Labyrinthian_module (): pp::Module(){}
-    virtual ~Labyrinthian_module(){}
-    virtual pp::Instance* CreateInstance(PP_Instance a)
-    { return new wrp::Labyrinthian_instance(a); }
-  };
-}
 
-namespace pp {
-  Module* CreateModule()
-  { return new wrp::Labyrinthian_module(); }
-}
+}}}}
 

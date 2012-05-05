@@ -16,10 +16,10 @@ CXX:=$(TC_PATH)/bin/i686-nacl-g++
 
 all: Labyrinthian_i686.nexe Labyrinthian_x86_64.nexe
 
-Labyrinthian_i686.nexe: Labyrinthian.cxx $(THIS_MAKE)
+Labyrinthian_i686.nexe: src.cxx/Labyrinthian-client-nacl.cxx $(THIS_MAKE)
 	$(CXX) -o $@ $< -m32 $(CXXFLAGS)
 
-Labyrinthian_x86_64.nexe: Labyrinthian.cxx $(THIS_MAKE)
+Labyrinthian_x86_64.nexe: src.cxx/Labyrinthian-client-nacl.cxx $(THIS_MAKE)
 	$(CXX) -o $@ $< -m64 $(CXXFLAGS)
 
 clean:
