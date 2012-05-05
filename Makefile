@@ -4,7 +4,7 @@ OSNAME       :=$(shell uname --kernel-name | tr "[:upper:]" "[:lower:]")
 TC_PATH      :=$(abspath $(NACL_SDK_ROOT)/toolchain/$(OSNAME)_x86_glibc)
 
 CXXPPAPI    := -lppapi -lppapi_cpp -lppapi_gles2
-CXXINCLUDES := -I/usr/include
+CXXINCLUDES := -Iinclude
 CXXWARNINGS := -Wall
 CXXSTD      := -std=c++0x
 CXXOPTIMIZE := -O2
