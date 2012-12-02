@@ -1,7 +1,9 @@
+#pragma once
+
 #include "ppapi/cpp/module.h"
 
-namespace wrp {
-namespace Labyrinthian {
+namespace BLAND_NAME {
+namespace APP_NAME {
 namespace client {
 namespace nacl {
   
@@ -13,5 +15,4 @@ namespace nacl {
   };
 
 }}}}
-
 

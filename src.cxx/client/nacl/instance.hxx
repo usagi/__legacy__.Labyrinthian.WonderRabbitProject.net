@@ -1,3 +1,5 @@
+#pragma once
+
 #include <array>
 #include <string>
 #include <memory>
@@ -17,11 +19,11 @@
 #include "ppapi/cpp/input_event.h"
 #include "ppapi/cpp/audio.h"
 
-#define WRP_PRODUCT_NAME "Labyrinthian"
+#define WRP_PRODUCT_NAME "APP_NAME"
 #include <wrp/log.hxx>
 
-namespace wrp {
-namespace Labyrinthian {
+namespace BLAND_NAME {
+namespace APP_NAME {
 namespace client {
 namespace nacl {
 
@@ -35,7 +37,7 @@ namespace nacl {
       static const uint32_t channels = 2;
       double clock;
       void initialize(const pp::Instance& i){
-        log l("audio::initialize", this);
+        WonderRabbitProject::log l("audio::initialize", this);
         auto pi = const_cast<pp::Instance*>(&i);
         auto sample_frame_count = pp::AudioConfig::RecommendSampleFrameCount(
           pi,
