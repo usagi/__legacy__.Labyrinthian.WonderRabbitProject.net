@@ -1,3 +1,5 @@
+APP_NAME     :=Labyrinthian
+
 THIS_MAKEFILE:=$(abspath $(lastword $(MAKEFILE_LIST)))
 NACL_SDK_ROOT?=$(abspath $(dir $(THIS_MAKEFILE))../..)
 OSNAME       :=$(shell uname --kernel-name | tr "[:upper:]" "[:lower:]")
@@ -14,84 +16,96 @@ CXXFLAGS:=$(CXXTHREAD) $(CXXSTD) $(CXXOPTIMIZE) $(CXXWARNINGS) $(CXXPPAPI) $(CXX
 
 CXX:=$(TC_PATH)/bin/i686-nacl-g++
 
-all: Labyrinthian_i686.nexe Labyrinthian_x86_64.nexe
+DESTINATION   :=_site
 
-Labyrinthian_i686.nexe: src.cxx/Labyrinthian-client-nacl.cxx $(THIS_MAKE)
+REMOTE_DEPLOY_COMMAND:=rsync -av --delete
+REMOTE_DEPLOY_TEST   :=$(APP_NAME).WonderRabbitProject.net:/srv/http/WonderRabbitProject.net/$(APP_NAME)/test
+REMOTE_DEPLOY_CURRENT:=$(APP_NAME).WonderRabbitProject.net:/srv/http/WonderRabbitProject.net/$(APP_NAME)/current
+
+LOCAL_TEST_SERVER      :=darkhttpd
+LOCAL_TEST_SERVER_OPTS :=--index main.html --port 12345
+LOCAL_TEST_BROWSER     :=google-chrome
+LOCAL_TEST_BROWSER_OPTS:=--incognito http://localhost:12345
+LOCAL_TEST_LOG         :=test-client.log
+
+all: $(APP_NAME)_i686.nexe $(APP_NAME)_x86_64.nexe
+
+$(APP_NAME)_i686.nexe: src.cxx/$(APP_NAME)-client-nacl.cxx $(THIS_MAKE)
 	$(CXX) -o $@ $< -m32 $(CXXFLAGS)
 
-Labyrinthian_x86_64.nexe: src.cxx/Labyrinthian-client-nacl.cxx $(THIS_MAKE)
+$(APP_NAME)_x86_64.nexe: src.cxx/$(APP_NAME)-client-nacl.cxx $(THIS_MAKE)
 	$(CXX) -o $@ $< -m64 $(CXXFLAGS)
 
 clean:
-	@-if [ -d _site ]; then rm -rfv _site/*; fi;
-	@-rmdir -v _site
+	@-if [ -d $(DESTINATION) ]; then rm -rfv $(DESTINATION)/*; fi;
+	@-rmdir -v $(DESTINATION)
 	@-rm -v *.o
 	@-rm -v *.nexe
 	@-rm -v *.nmf
 
 .PHONY: _site_dir
 _site_dir:
-	@if [ -d _site ]; then rm -rf _site/*; else mkdir _site; fi;
+	@if [ -d $(DESTINATION) ]; then rm -rf $(DESTINATION)/*; else mkdir $(DESTINATION); fi;
 
 .PHONY: glibc_so_64
-glibc_so_64: _site_dir Labyrinthian_x86_64.nexe
-	@if [ -d _site/lib64 ]; then rm -rf _site/lib64/*; else mkdir _site/lib64; fi;
-	@ln -v $(TC_PATH)/x86_64-nacl/lib/runnable-ld.so _site/lib64/
-	@for a in `$(TC_PATH)/bin/x86_64-nacl-objdump -p Labyrinthian_x86_64.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib/$${a} _site/lib64/$${a}; done;
-	@chmod 644 _site/lib64/*
+glibc_so_64: _site_dir $(APP_NAME)_x86_64.nexe
+	@if [ -d $(DESTINATION)/lib64 ]; then rm -rf $(DESTINATION)/lib64/*; else mkdir $(DESTINATION)/lib64; fi;
+	@ln -v $(TC_PATH)/x86_64-nacl/lib/runnable-ld.so $(DESTINATION)/lib64/
+	@for a in `$(TC_PATH)/bin/x86_64-nacl-objdump -p $(APP_NAME)_x86_64.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib/$${a} $(DESTINATION)/lib64/$${a}; done;
+	@chmod 644 $(DESTINATION)/lib64/*
 
 .PHONY: glibc_so_32
-glibc_so_32: _site_dir Labyrinthian_i686.nexe
-	@if [ -d _site/lib32 ]; then rm -rf _site/lib32/*; else mkdir _site/lib32; fi;
-	@ln -v $(TC_PATH)/x86_64-nacl/lib32/runnable-ld.so _site/lib32/
-	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p Labyrinthian_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib32/$${a} _site/lib32/$${a}; done;
-	@chmod 644 _site/lib32/*
+glibc_so_32: _site_dir $(APP_NAME)_i686.nexe
+	@if [ -d $(DESTINATION)/lib32 ]; then rm -rf $(DESTINATION)/lib32/*; else mkdir $(DESTINATION)/lib32; fi;
+	@ln -v $(TC_PATH)/x86_64-nacl/lib32/runnable-ld.so $(DESTINATION)/lib32/
+	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p $(APP_NAME)_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`; do ln -v $(TC_PATH)/x86_64-nacl/lib32/$${a} $(DESTINATION)/lib32/$${a}; done;
+	@chmod 644 $(DESTINATION)/lib32/*
 
-.PHONY: Labyrinthian.nmf
-Labyrinthian.nmf: _site_dir Labyrinthian_x86_64.nexe
-	@echo '{' >> Labyrinthian.nmf
-	@echo '  "program": {' >> Labyrinthian.nmf
-	@echo '     "x86-64": { "url": "lib64/runnable-ld.so" },' >> Labyrinthian.nmf
-	@echo '     "x86-32": { "url": "lib32/runnable-ld.so" }' >> Labyrinthian.nmf
-	@echo '  },' >> Labyrinthian.nmf
-	@echo '  "files": {' >> Labyrinthian.nmf
-	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p Labyrinthian_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`;\
+.PHONY: $(APP_NAME).nmf
+$(APP_NAME).nmf: _site_dir $(APP_NAME)_x86_64.nexe
+	@echo '{' >> $(APP_NAME).nmf
+	@echo '  "program": {' >> $(APP_NAME).nmf
+	@echo '     "x86-64": { "url": "lib64/runnable-ld.so" },' >> $(APP_NAME).nmf
+	@echo '     "x86-32": { "url": "lib32/runnable-ld.so" }' >> $(APP_NAME).nmf
+	@echo '  },' >> $(APP_NAME).nmf
+	@echo '  "files": {' >> $(APP_NAME).nmf
+	@for a in `$(TC_PATH)/bin/i686-nacl-objdump -p $(APP_NAME)_i686.nexe | grep NEEDED | tr NEEDED " " | sed "s/^[ ]*//" | tr "\n" " "`;\
 		do\
-		echo "    \"$${a}\": {" >> Labyrinthian.nmf;\
-		echo "      \"x86-64\": { \"url\": \"lib64/$${a}\"}," >> Labyrinthian.nmf;\
-		echo "      \"x86-32\": { \"url\": \"lib32/$${a}\"}" >> Labyrinthian.nmf;\
-		echo '    },' >> Labyrinthian.nmf;\
+		echo "    \"$${a}\": {" >> $(APP_NAME).nmf;\
+		echo "      \"x86-64\": { \"url\": \"lib64/$${a}\"}," >> $(APP_NAME).nmf;\
+		echo "      \"x86-32\": { \"url\": \"lib32/$${a}\"}" >> $(APP_NAME).nmf;\
+		echo '    },' >> $(APP_NAME).nmf;\
 		done;
-	@echo '    "main.nexe": {' >> Labyrinthian.nmf
-	@echo '      "x86-64": { "url": "Labyrinthian_x86_64.nexe" },' >> Labyrinthian.nmf
-	@echo '      "x86-32": { "url": "Labyrinthian_i686.nexe" }' >> Labyrinthian.nmf
-	@echo '    }' >> Labyrinthian.nmf
-	@echo '  }' >> Labyrinthian.nmf
-	@echo "}" >> Labyrinthian.nmf
+	@echo '    "main.nexe": {' >> $(APP_NAME).nmf
+	@echo '      "x86-64": { "url": "$(APP_NAME)_x86_64.nexe" },' >> $(APP_NAME).nmf
+	@echo '      "x86-32": { "url": "$(APP_NAME)_i686.nexe" }' >> $(APP_NAME).nmf
+	@echo '    }' >> $(APP_NAME).nmf
+	@echo '  }' >> $(APP_NAME).nmf
+	@echo "}" >> $(APP_NAME).nmf
 
 .PHONY: _site
-_site: _site_dir Labyrinthian.nmf glibc_so_64 glibc_so_32 Labyrinthian_x86_64.nexe Labyrinthian_i686.nexe
-	@-ln -v *.nexe _site
-	@-ln -v *.html _site
-	@-ln -v *.nmf  _site
-	@-ln -v *.js   _site
-	@-ln -v *.css  _site
-	@-ln -v favicon.ico _site
+_site: _site_dir $(APP_NAME).nmf glibc_so_64 glibc_so_32 $(APP_NAME)_x86_64.nexe $(APP_NAME)_i686.nexe
+	@-ln -v *.nexe $(DESTINATION)
+	@-ln -v *.html $(DESTINATION)
+	@-ln -v *.nmf  $(DESTINATION)
+	@-ln -v *.js   $(DESTINATION)
+	@-ln -v *.css  $(DESTINATION)
+	@-ln -v favicon.ico $(DESTINATION)
 
 .PHONY: test-server
 test-server: all _site
-	darkhttpd _site --index main.html --port 12345
+	$(LOCAL_TEST_SERVER) $(DESTINATION) $(LOCAL_TEST_SERVER_OPTS)
 
 .PHONY: test-client
 test-client: 
 	@ if [ -f test-client.log ]; then rm -v test-client.log; fi;
-	chromium-dev "http://localhost:12345" | tee test-client.log
+	$(LOCAL_TEST_BROWSER) $(LOCAL_TEST_BROWSER_OPTS) | tee $(LOCAL_TEST_LOG)
 
 .PHONY: deploy-test
 deploy-test: all _site
-	rsync -av --delete _site/ Labyrinthian.WonderRabbitProject.net:/srv/http/WonderRabbitProject.net/Labyrinthian/test
+	$(REMOTE_DEPLOY_COMMAND) $(DESTINATION)/ $(REMOTE_DEPLOY_TEST)
 
 .PHONY: deploy-current
 deploy-current: all _site
-	rsync -av --delete _site/ Labyrinthian.WonderRabbitProject.net:/srv/http/WonderRabbitProject.net/Labyrinthian/current
+	$(REMOTE_DEPLOY_COMMAND) $(DESTINATION)/ $(REMOTE_DEPLOY_CURRENT)
 
